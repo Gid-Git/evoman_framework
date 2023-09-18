@@ -21,7 +21,7 @@ class EvolutionaryAlgorithm:
         self.dom_l = -1
         self.current_generation = 0
         self.total_generations = self.gens
-        self.sigma_start = 1.0
+        self.sigma_start = 3.0
         self.sigma_end = 0.1
 
         self.env = self.initialize_environment()
@@ -81,11 +81,8 @@ class EvolutionaryAlgorithm:
 
             for f in range(n_offspring):
                 for i in range(self.n_vars):
-                    # Uniform crossover
-                    if np.random.uniform(0, 1) < 0.5:
-                        offspring[f][i] = p1[i]
-                    else:
-                        offspring[f][i] = p2[i]
+                    alpha = 0.5  # Blend parameter, authors had best results with alpha=0.5
+                    offspring[f][i] = (1 - alpha) * p1[i] + alpha * p2[i]
 
                     # Non-uniform Gaussian mutation
                     if np.random.uniform(0, 1) <= self.mutation:
@@ -211,14 +208,14 @@ class EvolutionaryAlgorithm:
 
 def main():
     parser = argparse.ArgumentParser(description="Evolutionary Algorithm with EvoMan Framework.")
-    parser.add_argument("--headless", action="store_true", help="Run without visualization for faster execution.")
-    parser.add_argument("--experiment_name", default="optimization_test", help="Name of the experiment.")
+    parser.add_argument("--headless", default="True", help="Run without visualization for faster execution.")
+    parser.add_argument("--experiment_name", default="Blend_test", help="Name of the experiment.")
     parser.add_argument("--n_hidden_neurons", type=int, default=10, help="Number of hidden neurons.")
     parser.add_argument("--run_mode", choices=["train", "test"], default="train", help="Mode to run the script: train or test.")
     parser.add_argument("--gens", type=int, default=30, help="Number of generations for the genetic algorithm.")
     parser.add_argument("--npop", type=int, default=100, help="Population size.")
     parser.add_argument("--mutation", type=float, default=0.2, help="Mutation rate.")
-    parser.add_argument("--enemies", type=int, nargs='+', default=[8], help='List of enemies to fight')
+    parser.add_argument("--enemies", type=int, nargs='+', default=[2,8], help='List of enemies to fight')
     
     args = parser.parse_args()
 

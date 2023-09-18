@@ -1,0 +1,1 @@
+my_specialist.py --headless --experiment_name=testing_elitism --n_hidden_neurons=10 --run_mode=train --gens=30 --npop=100 --mutation=0.2 --enemies 8

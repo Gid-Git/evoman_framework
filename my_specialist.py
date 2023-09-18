@@ -23,6 +23,7 @@ class EvolutionaryAlgorithm:
         self.total_generations = self.gens
         self.sigma_start = 1.0
         self.sigma_end = 0.1
+        self.n_elitism = args.n_elitism
 
         self.env = self.initialize_environment()
         self.n_vars = (self.env.get_num_sensors()+1)*self.n_hidden_neurons + (self.n_hidden_neurons+1)*5
@@ -133,6 +134,13 @@ class EvolutionaryAlgorithm:
         elif self.run_mode == 'test':
             self.test()
 
+    def elitism(self, k):
+        """
+        Select the top k individuals
+        """
+        best_indices = np.argsort(self.fit_pop)[-k:]
+        return self.pop[best_indices], self.fit_pop[best_indices]
+
     def train(self):
 
         if not os.path.exists(self.experiment_name + '/evoman_solstate'):
@@ -167,14 +175,14 @@ class EvolutionaryAlgorithm:
             self.fit_pop[best] = float(self.evaluate(np.array([self.pop[best]]))[0])
             best_sol = self.fit_pop[best]
 
-            # selection
+            # selection with elitism
             fit_pop_cp = self.fit_pop
             fit_pop_norm = np.array(list(map(lambda y: self.norm(y, fit_pop_cp), self.fit_pop)))
             probs = (fit_pop_norm) / (fit_pop_norm).sum()
-            chosen = np.random.choice(self.pop.shape[0], self.npop, p=probs, replace=False)
-            chosen = np.append(chosen[1:], best)
-            self.pop = self.pop[chosen]
-            self.fit_pop = self.fit_pop[chosen]
+            chosen = np.random.choice(self.pop.shape[0], self.npop-2, p=probs, replace=False)
+            elite_pop, elite_fit = self.elitism(self.n_elitism)
+            self.pop = np.vstack((self.pop[chosen], elite_pop))
+            self.fit_pop = np.append(self.fit_pop[chosen], elite_fit)
 
             if best_sol <= last_sol:
                 notimproved += 1
@@ -218,7 +226,8 @@ def main():
     parser.add_argument("--gens", type=int, default=30, help="Number of generations for the genetic algorithm.")
     parser.add_argument("--npop", type=int, default=100, help="Population size.")
     parser.add_argument("--mutation", type=float, default=0.2, help="Mutation rate.")
-    parser.add_argument("--enemies", type=int, nargs='+', default=[8], help='List of enemies to fight')
+    parser.add_argument("--enemies", type=int, nargs='+', default=[8], help='List of enemies to fight.')
+    parser.add_argument("--n_elitism", type=int, default=2, help="Number of best individuals from population that are always selected for the next generation.")
     
     args = parser.parse_args()
 

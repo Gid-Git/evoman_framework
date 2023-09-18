@@ -231,10 +231,10 @@ def main():
     parser.add_argument("--experiment_name", default="Deap_test", help="Name of the experiment.")
     parser.add_argument("--n_hidden_neurons", type=int, default=10, help="Number of hidden neurons.")
     parser.add_argument("--run_mode", choices=["train", "test"], default="train", help="Mode to run the script: train or test.")
-    parser.add_argument("--gens", type=int, default=40, help="Number of generations for the genetic algorithm.")
+    parser.add_argument("--gens", type=int, default=30, help="Number of generations for the genetic algorithm.")
     parser.add_argument("--npop", type=int, default=100, help="Population size.")
-    parser.add_argument("--mutation", type=float, default=0.2, help="Mutation rate.")
-    parser.add_argument("--enemies", type=int, nargs='+', default=[8], help='List of enemies to fight')
+    parser.add_argument("--mutation", type=float, default=0.3, help="Mutation rate.")
+    parser.add_argument("--enemies", type=int, nargs='+', default=[2,3,8], help='List of enemies to fight')
     
     args = parser.parse_args()
 

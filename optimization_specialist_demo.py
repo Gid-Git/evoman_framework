@@ -24,7 +24,7 @@ if headless:
     os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
-experiment_name = 'optimization_test'
+experiment_name = 'optimization_test_2'
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 

@@ -28,7 +28,7 @@ experiment_name = 'optimization_test'
 if not os.path.exists(experiment_name):
     os.makedirs(experiment_name)
 
-n_hidden_neurons = 10
+n_hidden_neurons = 20
 
 
 

@@ -14,15 +14,16 @@ class EvolutionaryAlgorithm:
         self.run_mode = args.run_mode
         self.gens = args.gens
         self.npop = args.npop
-        self.mutation = args.mutation
         self.enemies = args.enemies
         self.headless = args.headless
         self.dom_u = 1
         self.dom_l = -1
         self.current_generation = 0
         self.total_generations = self.gens
-        self.sigma_start = args.sigm_start
+        self.sigma_start = args.sigma_start
         self.sigma_end = args.sigma_end
+        self.mutation_start = args.mutation_start
+        self.mutation_end = args.mutation_end
         self.n_elitism = args.n_elitism
 
         self.env = self.initialize_environment()
@@ -89,7 +90,7 @@ class EvolutionaryAlgorithm:
                         offspring[f][i] = p2[i]
 
                     # Non-uniform Gaussian mutation, with sigma
-                    if np.random.uniform(0, 1) <= self.mutation:
+                    if np.random.uniform(0, 1) <= self.get_mutation_prob():
                         sigma = self.get_sigma()
                         offspring[f][i] += np.random.normal(0, sigma)
 
@@ -104,6 +105,13 @@ class EvolutionaryAlgorithm:
             return max(sigma, self.sigma_end)
         else:
             return self.sigma_end
+        
+    def get_mutation_prob(self):
+        if self.current_generation < self.total_generations:
+            mutation_prob = self.mutation_start - self.current_generation * (self.mutation_start - self.mutation_end) / self.total_generations
+            return max(mutation_prob, self.mutation_end)
+        else:
+            return self.mutation_end
 
     def doomsday(self, pop, fit_pop):
         worst = int(self.npop / 4)
@@ -225,11 +233,12 @@ def main():
     parser.add_argument("--run_mode", choices=["train", "test"], default="train", help="Mode to run the script: train or test.")
     parser.add_argument("--gens", type=int, default=30, help="Number of generations for the genetic algorithm.")
     parser.add_argument("--npop", type=int, default=100, help="Population size.")
-    parser.add_argument("--mutation", type=float, default=0.2, help="Mutation rate.")
     parser.add_argument("--enemies", type=int, nargs='+', default=[8], help='List of enemies to fight.')
     parser.add_argument("--n_elitism", type=int, default=2, help="Number of best individuals from population that are always selected for the next generation.")
     parser.add_argument("--sigma_start", type=float, default=1.0, help="Starting sigma for mutation strenght.")
     parser.add_argument("--sigma_end", type=int, default=0.1, help="Ending sigma for mutation strength.")
+    parser.add_argument("--mutation_start", type=float, default=0.5, help="Starting mutation probability.")
+    parser.add_argument("--mutation_end", type=float, default=0.05, help="Minimal mutation probability at the end of evolution.")
 
     args = parser.parse_args()
 

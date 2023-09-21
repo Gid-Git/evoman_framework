@@ -1,0 +1,1 @@
+my_specialist_2.py --headless --experiment_name=test_second_specialist_shared_fitness_0.25 --n_hidden_neurons=10 --run_mode=train --gens=30 --npop=100 --mutation=0.2 --enemies 6 --sigma_share 0.25

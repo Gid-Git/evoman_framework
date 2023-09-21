@@ -88,7 +88,7 @@ class EvolutionaryAlgorithm:
                     else:
                         offspring[f][i] = p2[i]
 
-                    # Non-uniform Gaussian mutation
+                    # Non-uniform Gaussian mutation, with sigma
                     if np.random.uniform(0, 1) <= self.mutation:
                         sigma = self.get_sigma()
                         offspring[f][i] += np.random.normal(0, sigma)

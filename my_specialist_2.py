@@ -24,6 +24,9 @@ class EvolutionaryAlgorithm:
         self.sigma_start = 1.0
         self.sigma_end = 0.1
         self.n_elitism = args.n_elitism
+        self.sigma_share = args.sigma_share
+
+        
 
         self.env = self.initialize_environment()
         self.n_vars = (self.env.get_num_sensors()+1)*self.n_hidden_neurons + (self.n_hidden_neurons+1)*5
@@ -62,10 +65,28 @@ class EvolutionaryAlgorithm:
         return np.array(list(map(lambda y: self.simulation(y), x)))
 
     def tournament(self, pop):
+        shared_fit_pop = self.shared_fitness(self.fit_pop)
+        
         c1 = np.random.randint(0, pop.shape[0], 1)
         c2 = np.random.randint(0, pop.shape[0], 1)
 
-        return pop[c1][0] if self.fit_pop[c1] > self.fit_pop[c2] else pop[c2][0]
+        return pop[c1][0] if shared_fit_pop[c1] > shared_fit_pop[c2] else pop[c2][0]
+    
+    def shared_fitness(self, original_fitness):
+        shared_fitness_values = np.zeros_like(original_fitness)
+        for i in range(len(original_fitness)):
+            sum_sharing = 0
+            for j in range(len(original_fitness)):
+                if i != j:
+                    dist = np.linalg.norm(self.pop[i] - self.pop[j])
+                    if dist < self.sigma_share:
+                        sh = 1 - dist / self.sigma_share
+                        sum_sharing += sh
+            if sum_sharing > 0:
+                shared_fitness_values[i] = original_fitness[i] / sum_sharing
+            else:
+                shared_fitness_values[i] = original_fitness[i]
+        return shared_fitness_values
 
     def limits(self, x):
         return max(min(x, self.dom_u), self.dom_l)
@@ -77,7 +98,8 @@ class EvolutionaryAlgorithm:
             p1 = self.tournament(self.pop)
             p2 = self.tournament(self.pop)
 
-            n_offspring = np.random.randint(1, 3 + 1, 1)[0]
+            # number of offsprings (maybe make parser later)
+            n_offspring = np.random.randint(1, 4 + 1, 1)[0]
             offspring = np.zeros((n_offspring, self.n_vars))
 
             for f in range(n_offspring):
@@ -242,7 +264,8 @@ def main():
     parser.add_argument("--mutation", type=float, default=0.2, help="Mutation rate.")
     parser.add_argument("--enemies", type=int, nargs='+', default=[8], help='List of enemies to fight.')
     parser.add_argument("--n_elitism", type=int, default=2, help="Number of best individuals from population that are always selected for the next generation.")
-    
+    parser.add_argument("--sigma_share", type=float, default=0.5, help='Determines how close two individuals must be to one another, for their fitness to be shared.')
+
     args = parser.parse_args()
 
     ea = EvolutionaryAlgorithm(args)

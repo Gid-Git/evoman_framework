@@ -15,7 +15,7 @@ class EvolutionaryAlgorithm:
         self.gens = args.gens
         self.npop = args.npop
         self.mutation = args.mutation
-        self.enemies = args.enemies
+        self.enemy = args.enemy
         self.headless = args.headless
         self.dom_u = 1
         self.dom_l = -1
@@ -40,7 +40,7 @@ class EvolutionaryAlgorithm:
             os.makedirs(self.experiment_name)
 
         env = Environment(experiment_name=self.experiment_name,
-                          enemies=self.enemies,
+                          enemies=self.enemy,
                           playermode="ai",
                           player_controller=player_controller(self.n_hidden_neurons),
                           enemymode="static",
@@ -262,7 +262,7 @@ def main():
     parser.add_argument("--gens", type=int, default=30, help="Number of generations for the genetic algorithm.")
     parser.add_argument("--npop", type=int, default=100, help="Population size.")
     parser.add_argument("--mutation", type=float, default=0.2, help="Mutation rate.")
-    parser.add_argument("--enemies", type=int, nargs='+', default=[8], help='List of enemies to fight.')
+    parser.add_argument("--enemy", type=int, nargs='+', default=[8], help='Enemy to fight.')
     parser.add_argument("--n_elitism", type=int, default=2, help="Number of best individuals from population that are always selected for the next generation.")
     parser.add_argument("--sigma_share", type=float, default=0.5, help='Determines how close two individuals must be to one another, for their fitness to be shared.')
 

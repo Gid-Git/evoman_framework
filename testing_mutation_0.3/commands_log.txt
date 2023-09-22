@@ -1,0 +1,1 @@
+my_specialist.py --headless --experiment_name testing_mutation_0.3 --n_hidden_neurons=20 --run_mode train --gens 30 --npop 500 --mutation 0.3 --enemies 6

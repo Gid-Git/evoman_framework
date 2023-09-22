@@ -21,11 +21,11 @@ class EvolutionaryAlgorithm:
         self.dom_l = -1
         self.current_generation = 0
         self.total_generations = self.gens
-        self.sigma_start = args.sigm_start
+        self.sigma_start = args.sigma_start
         self.sigma_end = args.sigma_end
         self.n_elitism = args.n_elitism
 
-        self.env = self.initialize_environment()
+        self.    = self.initialize_environment()
         self.n_vars = (self.env.get_num_sensors()+1)*self.n_hidden_neurons + (self.n_hidden_neurons+1)*5
         self.last_best = 0
 

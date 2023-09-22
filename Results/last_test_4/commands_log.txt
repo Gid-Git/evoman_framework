@@ -1,0 +1,1 @@
+new_specialist_last.py --mode train --experiment_name last_test_4 --headless --mutation_rate 0.5 --crossover_rate 0.9 --population_size 1000

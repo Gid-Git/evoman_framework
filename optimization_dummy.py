@@ -7,6 +7,7 @@
 
 import sys
 import os
+import math
 import time
 import numpy as np
 from evoman.environment import Environment
@@ -31,6 +32,7 @@ class EvolutionaryAlgorithm:
         self.sigma_start = 1.0
         self.sigma_end = 0.1
         self.k_tournament = args.k_tournament
+        self.k_tournament_final = args.k_tournament_final
         self.sel_pres_incr = args.selection_pressure_increase
         self.n_elitism = args.n_elitism
 
@@ -94,7 +96,7 @@ class EvolutionaryAlgorithm:
         #if selection pressure is set to True we want the pressure to increase and thus the number of neural networks to compete to increase
         #eventually the number of individuals in tournament is doubled from start to finish.
         if self.sel_pres_incr:
-            k = round(self.current_generation*self.k_tournament/self.total_generations)+self.k_tournament
+            k = max(math.ceil(self.current_generation*self.k_tournament_final/self.total_generations)*self.k_tournament, self.k_tournament)
         else:
             k = self.k_tournament
         for p in range(self.npop-self.n_elitism):
@@ -278,6 +280,8 @@ def main():
     parser.add_argument("--n_elitism", type=int, default=2, help="Number of best individuals from population that are always selected for the next generation.")
     parser.add_argument("--k_tournament", type=int, default= 6, help="The amount of individuals to do a tournament with for selection, the more the higher the selection pressure")
     parser.add_argument("--selection_pressure_increase", type=bool, default=True, help="if set to true the selection pressure will linearly increase over time from k_tournament till 2*k_tournament")
+    parser.add_argument("--k_tournament_final", type=int, default= 4, help="The factor with which k_tournament should linearly increase (if selection_pressure_increase = True), if the value is 4 the last quarter of generations have tournaments of size k_tournament*4")
+
 
     args = parser.parse_args()
 

@@ -1,0 +1,2 @@
+optimization_dummy.py --headless --experiment_name=mick_test_k=4_pop=500 --k_tournament=4 --npop=500
+optimization_dummy.py --headless --experiment_name=mick_test_k=4_pop=500 --k_tournament=2 --npop=500

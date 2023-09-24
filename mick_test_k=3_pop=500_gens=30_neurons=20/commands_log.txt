@@ -1,0 +1,1 @@
+optimization_dummy.py --headless --experiment_name=mick_test_k=3_pop=500_gens=30_neurons=20 --k_tournament=3 --npop=500 --gens=30 --n_hidden_neurons=20

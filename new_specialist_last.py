@@ -6,24 +6,27 @@ from demo_controller import player_controller
 import csv
 import random
 import sys
+import time
 
 # Define the base file path
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
 class EvoMan:
-    def __init__(self, args):
-        self.experiment_name = args.experiment_name
-        self.enemy = args.enemy
-        self.population_size = args.population_size
-        self.generations = args.generations
-        self.mutation_rate = args.mutation_rate
-        self.crossover_rate = args.crossover_rate
-        self.tournament_size = args.tournament_size
-        self.mode = args.mode
-        self.n_hidden_neurons = args.n_hidden_neurons
-        self.headless = args.headless
-        self.dom_l = args.dom_l
-        self.dom_u = args.dom_u
+    def __init__(self, experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
+                 tournament_size, mode, n_hidden_neurons, headless, dom_l, dom_u, speed):
+        self.experiment_name = experiment_name
+        self.enemy = enemy
+        self.n_pop = population_size
+        self.gens = generations
+        self.mutation_rate = mutation_rate
+        self.crossover_rate = crossover_rate
+        self.tournament_size = tournament_size
+        self.mode = mode
+        self.n_hidden_neurons = n_hidden_neurons
+        self.headless = headless
+        self.dom_l = dom_l
+        self.dom_u = dom_u
+        self.speed = speed
 
         # Setup directories
         self.setup_directories()
@@ -61,7 +64,7 @@ class EvoMan:
                           player_controller=player_controller(self.n_hidden_neurons),
                           enemymode="static",
                           level=2,
-                          speed="fastest",
+                          speed=self.speed,
                           visuals=not self.headless)
         return env
     
@@ -72,18 +75,18 @@ class EvoMan:
     
     def simulation(self, x):
         fitness, player_life, enemy_life, time = self.env.play(pcont=x)
-        health_gain = enemy_life - player_life
+        health_gain = player_life - enemy_life
 
         return fitness, health_gain, time
     
     def evaluate(self, population):
         # Evaluates the entire population and returns the fitness values
-        fitness = np.zeros(self.population_size)
-        health_gain = np.zeros(self.population_size)
-        time = np.zeros(self.population_size)
+        fitness = np.zeros(self.n_pop)
+        health_gain = np.zeros(self.n_pop)
+        time_game = np.zeros(self.n_pop)
         for i, individual in enumerate(population):
-            fitness[i], health_gain, time = self.simulation(individual)
-        return fitness, health_gain, time
+            fitness[i], health_gain[i], time_game[i] = self.simulation(individual)
+        return fitness, health_gain, time_game
     
     def mutate(self, individual):
         # Applies mutation to the individual based on the mutation rate
@@ -104,18 +107,27 @@ class EvoMan:
         
     def tournament_selection(self, population, fitness):
         # Selects an individual using tournament selection and returns the selected individual
-        selected_indices = np.random.choice(self.population_size, self.tournament_size)
+        selected_indices = np.random.choice(self.n_pop, self.tournament_size)
         tournament_individuals = population[selected_indices]
         tournament_fitness = fitness[selected_indices]
         winner_index = np.argmax(tournament_fitness)
         return tournament_individuals[winner_index]
     
+    def run(self):
+        if self.mode == "train":
+            self.train()
+        elif self.mode == "test":
+            self.test()
+    
     def train(self):
+        # take time of entire run
+        start_time = time.time()
+
         # Initialize population
-        population = np.array([self.initialize_individual() for _ in range(self.population_size)])
+        population = np.array([self.initialize_individual() for _ in range(self.n_pop)])
 
         # Evaluate the initial population
-        fitness, health_gain, time = self.evaluate(population)
+        fitness, health_gain, time_game = self.evaluate(population)
 
         # Initialize best individual and its fitness
         best_individual_index = np.argmax(fitness)
@@ -130,9 +142,9 @@ class EvoMan:
                              "Avg Health", "Std Health", "Lowest Time", "Avg Time", "Std Time"])
 
             # Main loop for generations
-            for gen in range(self.generations):
+            for gen in range(self.gens):
                 new_population = []
-                for _ in range(self.population_size // 2):  # Two children per iteration
+                for _ in range(self.n_pop // 2):  # Two children per iteration
                     parent1 = self.tournament_selection(population, fitness)
                     parent2 = self.tournament_selection(population, fitness)
 
@@ -144,7 +156,7 @@ class EvoMan:
                     new_population.extend([child1, child2])
 
                 population = np.array(new_population)
-                fitness, health_gain, time = self.evaluate(population)
+                fitness, health_gain, time_game = self.evaluate(population)
 
                 # Check if any individual has a higher fitness, save that one
                 max_fitness_index = np.argmax(fitness)
@@ -155,20 +167,56 @@ class EvoMan:
                 # save to csv
                 writer.writerow([gen, np.max(fitness), np.mean(fitness), np.std(fitness),
                                     np.max(health_gain), np.mean(health_gain), np.std(health_gain),
-                                    np.min(time), np.mean(time), np.std(time)])
+                                    np.min(time_game), np.mean(time_game), np.std(time_game)])
                 
                 print(f"Generation {gen}, Best Fitness: {np.max(fitness)}")
                 
-        # Save the best individual's neural network weights
-        np.save(os.path.join(self.experiment_dir, "best_individual.npy"), best_individual)
+                # Save the best individual's neural network weights
+                np.save(os.path.join(self.experiment_dir, "best_individual.npy"), best_individual)
 
-    def main():
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+
+        # Save the elapsed time
+        time_file_path = os.path.join(self.experiment_dir, "training_time.txt")
+        with open(time_file_path, 'w') as file:
+            file.write(f"Training Time: {elapsed_time} seconds\n")
+
+    def test(self):
+        best_individual_path = os.path.join(self.experiment_dir, "best_individual.npy")
+
+        if os.path.exists(best_individual_path):
+            # Load the best individual's neural network weights
+            best_individual = np.load(best_individual_path)
+
+            # Run the simulation with the best individual
+            fitness, health_gain, time = self.simulation(best_individual)
+
+        else:
+            print("No best individual found!")
+
+
+def run_evoman(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, tournament_size, mode, 
+               n_hidden_neurons, headless, dom_l, dom_u, speed):
+        evoman = EvoMan(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
+                        tournament_size, mode, n_hidden_neurons, headless, dom_l, dom_u, speed)
+        
+        # Log the command
+        if mode == "train":
+            log_file_path = os.path.join(evoman.experiment_dir, "commands_log.txt")
+            with open(log_file_path, "a") as f:
+                f.write(' '.join(sys.argv) + '\n')
+        
+        evoman.run()
+        
+
+if __name__ == "__main__":
         parser = argparse.ArgumentParser(description="Evolutionary Algorithm for EvoMan")
         
         parser.add_argument("--experiment_name", type=str, default="experiment", help="Name of the experiment")
-        parser.add_argument("--enemy", type=int, default=[8], help="Enemy number")
-        parser.add_argument("--population_size", type=int, default=100, help="Size of the population")
-        parser.add_argument("--generations", type=int, default=50, help="Number of generations")
+        parser.add_argument("--enemy", type=int, nargs='+',default=[8], help="Enemy number")
+        parser.add_argument("--npop", type=int, default=100, help="Size of the population")
+        parser.add_argument("--gens", type=int, default=50, help="Number of generations")
         parser.add_argument("--mutation_rate", type=float, default=0.1, help="Mutation rate")
         parser.add_argument("--crossover_rate", type=float, default=0.9, help="Crossover rate")
         parser.add_argument("--tournament_size", type=int, default=5, help="Tournament size for selection")
@@ -177,17 +225,9 @@ class EvoMan:
         parser.add_argument("--headless", action="store_true", help="Run in headless mode")
         parser.add_argument("--dom_l", type=float, default=-1, help="Lower bound for initialization and mutation")
         parser.add_argument("--dom_u", type=float, default=1, help="Upper bound for initialization and mutation")
+        parser.add_argument("--speed", type=str, default="fastest", help="Speed: fastest or normal")
 
         args = parser.parse_args()
 
-        evoman = EvoMan(args)
-        evoman.train()
-
-        # Log the command
-        if args.mode == "train":
-            log_file_path = os.path.join(evoman.experiment_dir, "commands_log.txt")
-            with open(log_file_path, "a") as f:
-                f.write(' '.join(sys.argv) + '\n')
-
-if __name__ == "__main__":
-    EvoMan.main()
+        run_evoman(args.experiment_name, args.enemy, args.npop, args.gens, args.mutation_rate, args.crossover_rate,
+               args.tournament_size, args.mode, args.n_hidden_neurons, args.headless, args.dom_l, args.dom_u, args.speed)

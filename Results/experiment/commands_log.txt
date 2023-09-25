@@ -1,0 +1,6 @@
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialized_mick.py --headless
+new_specialized_mick.py --headless
+new_specialized_mick.py --headless
+new_specialized_mick.py --headless

@@ -27,6 +27,7 @@ class EvoMan:
         self.dom_l = dom_l
         self.dom_u = dom_u
         self.speed = speed
+        self.counter = 0
 
         # Setup directories
         self.setup_directories()
@@ -74,6 +75,7 @@ class EvoMan:
         return individual
     
     def simulation(self, x):
+        self.counter += 1
         fitness, player_life, enemy_life, time = self.env.play(pcont=x)
         health_gain = player_life - enemy_life
 
@@ -92,7 +94,7 @@ class EvoMan:
         # Applies mutation to the individual based on the mutation rate
         for i in range(len(individual)):
             if random.uniform(0, 1) < self.mutation_rate:
-                individual[i] = np.random.normal(self.dom_l, self.dom_u)
+                individual[i] = np.random.uniform(self.dom_l, self.dom_u)
         return individual
     
     def crossover(self, parent1, parent2):
@@ -178,9 +180,10 @@ class EvoMan:
         elapsed_time = end_time - start_time
 
         # Save the elapsed time
-        time_file_path = os.path.join(self.experiment_dir, "training_time.txt")
+        time_file_path = os.path.join(self.experiment_dir, "training_time_and_effort.txt")
         with open(time_file_path, 'w') as file:
             file.write(f"Training Time: {elapsed_time} seconds\n")
+            file.write(f"Tuning effort: {self.counter} \n")
 
     def test(self):
         best_individual_path = os.path.join(self.experiment_dir, "best_individual.npy")

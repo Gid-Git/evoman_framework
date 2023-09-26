@@ -1,0 +1,3 @@
+new_specialist_last.py --headless --experiment_name=test_counter --n_hidden_neurons=10 --mode=train --gens=30 --npop=100 --mutation=0.1 --enemy 6
+new_specialist_last.py --headless --experiment_name=test_counter --n_hidden_neurons=10 --mode=train --gens=30 --npop=100 --mutation=0.1 --enemy 6
+new_specialist_last.py --headless --experiment_name=test_counter --n_hidden_neurons=10 --mode=train --gens=30 --npop=100 --mutation=0.1 --enemy 6

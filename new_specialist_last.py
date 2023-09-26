@@ -27,6 +27,7 @@ class EvoMan:
         self.dom_l = dom_l
         self.dom_u = dom_u
         self.speed = speed
+        self.counter = 0
 
         # Setup directories
         self.setup_directories()
@@ -74,6 +75,7 @@ class EvoMan:
         return individual
     
     def simulation(self, x):
+        self.counter += 1
         fitness, player_life, enemy_life, time = self.env.play(pcont=x)
         health_gain = player_life - enemy_life
 
@@ -185,9 +187,10 @@ class EvoMan:
         elapsed_time = end_time - start_time
 
         # Save the elapsed time
-        time_file_path = os.path.join(self.experiment_dir, "training_time.txt")
+        time_file_path = os.path.join(self.experiment_dir, "training_time_and_effort.txt")
         with open(time_file_path, 'w') as file:
             file.write(f"Training Time: {elapsed_time} seconds\n")
+            file.write(f"Tuning effort: {self.counter} \n")
 
     def test(self):
         best_individual_path = os.path.join(self.experiment_dir, "best_individual.npy")

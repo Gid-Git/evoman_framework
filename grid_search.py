@@ -22,4 +22,5 @@ grid = [0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3]
 for value in grid:
     unique_experiment_name = f"mutation_grid_{value}"
     parameters["experiment_name"] = unique_experiment_name
+    parameters['mutation_rate'] = value
     run_evoman(**parameters)

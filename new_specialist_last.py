@@ -92,7 +92,7 @@ class EvoMan:
         # Applies mutation to the individual based on the mutation rate
         for i in range(len(individual)):
             if random.uniform(0, 1) < self.mutation_rate:
-                individual[i] = np.random.uniform(self.dom_l, self.dom_u)
+                individual[i] = np.random.normal(self.dom_l, self.dom_u)
         return individual
     
     def crossover(self, parent1, parent2):

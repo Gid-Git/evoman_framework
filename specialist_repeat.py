@@ -20,8 +20,8 @@ parameters = {
 
 # for running and saving the code 10 times
 for i in range(10):
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
-    unique_experiment_name = f"experiment_{timestamp}"
+    number = i + 1
+    unique_experiment_name = f"experiment_{number}"
     parameters["experiment_name"] = unique_experiment_name
     run_evoman(**parameters)
     time.sleep(1)

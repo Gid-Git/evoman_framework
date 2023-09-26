@@ -2,50 +2,40 @@
 
 MESSAGE: Pygame initialized for simulation.
 
-########## Simulation state - INI ###########
+PARAMETER CHANGE: enemies = [8]
 
-# solutions # : EMPTY 
+PARAMETER CHANGE: timeexpire = 3000
 
-# sensors # : 20
+PARAMETER CHANGE: level = 2
 
- ------  parameters ------  
+PARAMETER CHANGE: enemyn = 8
 
-# contact hurt (training agent) # : player
+PARAMETER CHANGE: overturetime = 100
 
-multiple mode: no
+PARAMETER CHANGE: playermode = ai
 
-enemies list: 8
+PARAMETER CHANGE: enemymode = static
 
-current enemy: 8
+PARAMETER CHANGE: contacthurt = player
 
-player mode: ai
+PARAMETER CHANGE: clockprec = low
 
-enemy mode: static
+PARAMETER CHANGE: inputscoded = no
 
-level: 2
+PARAMETER CHANGE: randomini = no
 
-clock precision: low
+PARAMETER CHANGE: multiplemode = no
 
-inputs coded: no
+PARAMETER CHANGE: speed = fastest
 
-random initialization: no
+PARAMETER CHANGE: loadplayer = yes
 
-expiration time: 3000
+PARAMETER CHANGE: loadenemy = yes
 
-speed: fastest
+PARAMETER CHANGE: sound = off
 
-load player: yes
+PARAMETER CHANGE: logs = on
 
-load enemy: yes
+PARAMETER CHANGE: savelogs = yes
 
-sound: off
-
-overture time: 100
-
-logs: on
-
-save logs: yes
-
-########## Simulation state - END ###########
-
-PARAMETER CHANGE: speed = normal
+MESSAGE: state has been loaded.

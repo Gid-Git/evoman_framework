@@ -1,0 +1,1 @@
+runbliepbloep.py --headless --experiment_name=mutation --n_hidden_neurons=40 --run_mode=train --gens=30 --npop=100 --mutation=0.2 --enemies 8

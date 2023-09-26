@@ -24,4 +24,3 @@ for i in range(10):
     unique_experiment_name = f"experiment_{number}"
     parameters["experiment_name"] = unique_experiment_name
     run_evoman(**parameters)
-    time.sleep(1)

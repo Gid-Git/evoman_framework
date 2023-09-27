@@ -82,11 +82,6 @@ class EvolutionaryAlgorithm:
 
         c1 = random_indices[best_individual]
         
-        # c1 =  np.random.randint(0,pop.shape[0], 1)
-        # for i in range(k):
-        #     c2 =  np.random.randint(0,pop.shape[0], 1)
-        #     if fit_pop[c2] > fit_pop[c1]:
-        #         c1 = c2
         return c1
 
 

@@ -1,0 +1,21 @@
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+new_specialist_last.py --headless
+c:/Users/Max/Documents/VU/Evo/evoman_framework/new_specialist_last.py
+new_specialist_last.py --headless
+c:/Users/Max/Documents/VU/Evo/evoman_framework/new_specialist_last.py
+new_specialist_last.py --headless
+testingEAS.py --headless
+testingEAS.py --headless

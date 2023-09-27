@@ -156,7 +156,7 @@ class EvoMan:
     def selection(self, population, fitness):
         
         #Now elitism function also deletes the elites from self.pop and self.pop_fit so they cant be chosen in the selection step
-        if self.n_elitism > np.inf:
+        if self.n_elitism > 0:
             selected_indices, candidate_indices = self.elitism(self.n_elitism, fitness)
         else:
             selected_indices = np.array([], dtype=int)

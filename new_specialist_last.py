@@ -94,7 +94,8 @@ class EvoMan:
         # Applies mutation to the individual based on the mutation rate
         for i in range(len(individual)):
             if random.uniform(0, 1) < self.mutation_rate:
-                individual[i] = np.random.uniform(self.dom_l, self.dom_u)
+                mutation = np.random.normal(individual[i], 0.1)
+                individual[i] = np.clip(mutation, self.dom_l, self.dom_u)
         return individual
     
     def crossover(self, parent1, parent2):
@@ -117,7 +118,9 @@ class EvoMan:
     
     def run(self):
         if self.mode == "train":
-            self.train()
+            fitness = self.train()
+
+            return fitness
         elif self.mode == "test":
             self.test()
     
@@ -185,6 +188,8 @@ class EvoMan:
             file.write(f"Training Time: {elapsed_time} seconds\n")
             file.write(f"Tuning effort: {self.counter} \n")
 
+        return best_fitness
+
     def test(self):
         best_individual_path = os.path.join(self.experiment_dir, "best_individual.npy")
 
@@ -210,7 +215,9 @@ def run_evoman(experiment_name, enemy, population_size, generations, mutation_ra
             with open(log_file_path, "a") as f:
                 f.write(' '.join(sys.argv) + '\n')
         
-        evoman.run()
+        fitness = evoman.run()
+
+        return fitness
         
 
 if __name__ == "__main__":

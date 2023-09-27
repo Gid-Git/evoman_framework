@@ -1,0 +1,3 @@
+new_specialist_last.py --headless --experiment_name test_optimized_parameter --crossover_rate 0.2 --mutation_rate 0.2
+new_specialist_last.py --headless --experiment_name test_optimized_parameter --crossover_rate 0.2 --mutation_rate 0.2 --gens 30
+new_specialist_last.py --headless --experiment_name test_optimized_parameter --crossover_rate 0.2 --mutation_rate 0.2 --gens 30 --enemy 6

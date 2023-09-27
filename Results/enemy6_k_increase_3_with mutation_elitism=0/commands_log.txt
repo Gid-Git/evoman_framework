@@ -1,0 +1,9 @@
+optimization_mick_2.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_2.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_2.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_2.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_2.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_3.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_3.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_3.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0
+optimization_mick_3.py --headless --experiment_name enemy6_k_increase_3_with mutation_elitism=0

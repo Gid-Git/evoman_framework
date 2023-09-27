@@ -14,14 +14,13 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 
 class EvoMan:
     def __init__(self, experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
-                 tournament_size, mode, n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final):
+                 mode, n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
         self.experiment_name = experiment_name
         self.enemy = enemy
         self.n_pop = population_size
         self.gens = generations
         self.mutation_rate = mutation_rate
         self.crossover_rate = crossover_rate
-        self.tournament_size = tournament_size
         self.mode = mode
         self.n_hidden_neurons = n_hidden_neurons
         self.headless = headless
@@ -31,7 +30,7 @@ class EvoMan:
         self.n_elitism = n_elitism
         self.k_tournament = k_tournament
         self.sel_pres_incr = sel_pres_incr
-        self.k_tournament_final = k_tournament_final
+        self.k_tournament_final_linear_increase_factor = k_tournament_final_linear_increase_factor
         self.current_generation = 0
 
         # Setup directories
@@ -127,67 +126,58 @@ class EvoMan:
             return parent1.copy(), parent2.copy()
     
     # tournament (returns winnning individual and its fitness)
-    def tournament_selection(self, population, fitness, k=2):
+    def tournament_selection(self, candidate_indices, fitness, population, k=2):
         # Generate k unique random indices
-        random_indices = np.random.choice(population.shape[0], k, replace=False)
+        random_indices = np.random.choice(candidate_indices, k, replace=False)
         # Select the individuals with the highest fitness values among the randomly chosenpytrel ones
         best_individual_index = np.argmax(fitness[random_indices])
         # Return the index of the best individual on the population scale
         winner_index = random_indices[best_individual_index]
 
-        return population[winner_index], fitness[winner_index], winner_index
+        #return the winning individual for parent selection and the winning index for tournament selection in the selection function
+        return population[winner_index], winner_index
     
-    def elitism(self, k, population, fitness):
+    def elitism(self, k, fitness):
         """
         Select the top k individuals
         """
         best_indices = np.argsort(fitness)[-k:]
+        candidate_indices = np.arange(fitness.shape[0])
+        for best_index in best_indices:
+            candidate_indices = np.delete(candidate_indices, np.where(candidate_indices == best_index))
 
-        elite_pop = population[best_indices]
-        elite_fit = fitness[best_indices]
-
-        # Remove the selected elite individuals and their fitness values from population and fitness
-        population = np.delete(population, best_indices, axis=0)
-        fitness = np.delete(fitness, best_indices)
-
-        return elite_pop, elite_fit, population, fitness, best_indices
+        return best_indices, candidate_indices
 
 
     # returns selected individuals and their fitness
     def selection(self, population, fitness):
-        selected = []
-        selected_fit = []
+        
         #Now elitism function also deletes the elites from self.pop and self.pop_fit so they cant be chosen in the selection step
         if self.n_elitism > 0:
-            elite_pop, elite_fit, population, fitness, best_indices = self.elitism(self.n_elitism, population, fitness)
+            selected_indices, candidate_indices = self.elitism(self.n_elitism, fitness)
         else:
-            best_indices = np.array([])
-            elite_pop = np.array([])
-            elite_fit = np.array([])
+            selected_indices = np.array([], dtype=int)
+            candidate_indices = np.arange(fitness.shape[0])
         #if selection pressure is set to True we want the pressure to increase and thus the number of neural networks to compete to increase
         #eventually the number of individuals in tournament is doubled from start to finish.
         if self.sel_pres_incr:
-            k = max(math.ceil(self.current_generation*self.k_tournament_final/self.gens)*self.k_tournament, self.k_tournament)
+            k = max(math.ceil(self.current_generation*self.k_tournament_final_linear_increase_factor/self.gens)*self.k_tournament, self.k_tournament)
         else:
             k = self.k_tournament
         for p in range(self.n_pop-self.n_elitism):
-            select, fit, winner_index = self.tournament_selection(population, fitness, k)
+            winner, winner_index = self.tournament_selection(candidate_indices, fitness, population, k)
             # Remove the selected elite individuals and their fitness values from population and fitness
-            population = np.delete(population, winner_index, axis=0)
-            fitness = np.delete(fitness, winner_index)
-            selected.append(select)
-            selected_fit.append(fit)
-            best_indices = np.append(best_indices, winner_index)
+            selected_indices = np.append(selected_indices, winner_index)
+            candidate_indices = np.delete(candidate_indices, np.where(candidate_indices == winner_index))
 
         # print(f'fitness: {fitness.shape}, type: {type(fitness)}')
         # print(f'population: {population.shape}, type: {type(population)}')
         # Add the elite individuals to selected
-        print(best_indices)
-        print(best_indices.shape)
-        if elite_pop.any():
-            selected = np.concatenate((selected, elite_pop), axis=0)
-            selected_fit = np.concatenate((selected_fit, elite_fit), axis=0)
-        return selected, selected_fit, best_indices
+        print(selected_indices)
+        print(selected_indices.shape)
+        print(candidate_indices)
+        print(candidate_indices.shape)
+        return selected_indices
     
     def run(self):
         if self.mode == "train":
@@ -227,8 +217,8 @@ class EvoMan:
                 children = []
                 self.current_generation += 1
                 for _ in range(self.n_pop // 2):  # Two children per iteration
-                    parent1, fitness1, winn = self.tournament_selection(population, fitness)
-                    parent2, fitness1, winn = self.tournament_selection(population, fitness)
+                    parent1, winner_index = self.tournament_selection(population.shape[0], fitness, population)
+                    parent2, winner_index = self.tournament_selection(population.shape[0], fitness, population)
 
                     child1, child2 = self.crossover(parent1, parent2)
 
@@ -237,11 +227,15 @@ class EvoMan:
 
                     children.extend([child1, child2])    
                 fitness_children, health_gain_children, time_game_children = self.evaluate(children)
-                health_gain_before_selection = np.concatenate((health_gain, health_gain_children))
-                time_game_before_selection = np.concatenate((time_game, time_game_children))
                 pop_before_selection = np.concatenate((population, children))
                 fitness_before_selection = np.concatenate((fitness, fitness_children))
-                population, fitness, selected_indices = self.selection(pop_before_selection, fitness_before_selection)
+                #Perform selection on the combined population of parents and children
+                selected_indices = self.selection(pop_before_selection, fitness_before_selection)
+
+                health_gain_before_selection = np.concatenate((health_gain, health_gain_children))
+                time_game_before_selection = np.concatenate((time_game, time_game_children))
+                fitness = fitness_before_selection[selected_indices]
+                population = pop_before_selection[selected_indices]
                 health_gain = health_gain_before_selection[selected_indices]
                 time_game = time_game_before_selection[selected_indices]
 
@@ -284,10 +278,10 @@ class EvoMan:
             print("No best individual found!")
 
 
-def run_evoman(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, tournament_size, mode, 
-               n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final):
+def run_evoman(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, mode, 
+               n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
         evoman = EvoMan(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
-                        tournament_size, mode, n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final)
+                        mode, n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor)
         
         # Log the command
         if mode == "train":
@@ -307,20 +301,19 @@ if __name__ == "__main__":
         parser.add_argument("--gens", type=int, default=30, help="Number of generations")
         parser.add_argument("--mutation_rate", type=float, default=0.1, help="Mutation rate")
         parser.add_argument("--crossover_rate", type=float, default=0.9, help="Crossover rate")
-        parser.add_argument("--tournament_size", type=int, default=5, help="Tournament size for selection")
         parser.add_argument("--mode", type=str, default="train", help="Mode: train or test")
         parser.add_argument("--n_hidden_neurons", type=int, default=10, help="Number of hidden neurons")
         parser.add_argument("--headless", action="store_true", help="Run in headless mode")
         parser.add_argument("--dom_l", type=float, default=-1, help="Lower bound for initialization and mutation")
         parser.add_argument("--dom_u", type=float, default=1, help="Upper bound for initialization and mutation")
         parser.add_argument("--speed", type=str, default="fastest", help="Speed: fastest or normal")
-        parser.add_argument("--n_elitism", type=int, default=0, help="Number of best individuals from population that are always selected for the next generation.")
+        parser.add_argument("--n_elitism", type=int, default=2, help="Number of best individuals from population that are always selected for the next generation.")
         parser.add_argument("--k_tournament", type=int, default= 3, help="The amount of individuals to do a tournament with for selection, the more the higher the selection pressure")
         parser.add_argument("--selection_pressure_increase", type=bool, default=True, help="if set to true the selection pressure will linearly increase over time from k_tournament till 2*k_tournament")
-        parser.add_argument("--k_tournament_final", type=int, default= 3, help="The factor with which k_tournament should linearly increase (if selection_pressure_increase = True), if the value is 4 the last quarter of generations have tournaments of size k_tournament*4")
+        parser.add_argument("--k_tournament_final_linear_increase_factor", type=int, default= 4, help="The factor with which k_tournament should linearly increase (if selection_pressure_increase = True), if the value is 4 the last quarter of generations have tournaments of size k_tournament*4")
 
         args = parser.parse_args()
 
         run_evoman(args.experiment_name, args.enemy, args.npop, args.gens, args.mutation_rate, args.crossover_rate,
-               args.tournament_size, args.mode, args.n_hidden_neurons, args.headless, args.dom_l, args.dom_u, args.speed, 
-               args.n_elitism, args.k_tournament, args.selection_pressure_increase, args.k_tournament_final)
+               args.mode, args.n_hidden_neurons, args.headless, args.dom_l, args.dom_u, args.speed, 
+               args.n_elitism, args.k_tournament, args.selection_pressure_increase, args.k_tournament_final_linear_increase_factor)

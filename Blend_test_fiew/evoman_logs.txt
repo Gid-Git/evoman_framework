@@ -2,13 +2,13 @@
 
 MESSAGE: Pygame initialized for simulation.
 
-PARAMETER CHANGE: enemies = [8]
+PARAMETER CHANGE: enemies = [2, 8]
 
 PARAMETER CHANGE: timeexpire = 3000
 
 PARAMETER CHANGE: level = 2
 
-PARAMETER CHANGE: enemyn = 8
+PARAMETER CHANGE: enemyn = 2
 
 PARAMETER CHANGE: overturetime = 100
 

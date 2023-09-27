@@ -208,14 +208,14 @@ class EvolutionaryAlgorithm:
 
 def main():
     parser = argparse.ArgumentParser(description="Evolutionary Algorithm with EvoMan Framework.")
-    parser.add_argument("--headless", default="True", help="Run without visualization for faster execution.")
-    parser.add_argument("--experiment_name", default="Blend_test", help="Name of the experiment.")
-    parser.add_argument("--n_hidden_neurons", type=int, default=10, help="Number of hidden neurons.")
+    parser.add_argument("--headless", action="store_true", help="Run without visualization for faster execution.")
+    parser.add_argument("--experiment_name", default="Blend_test_fiew", help="Name of the experiment.")
+    parser.add_argument("--n_hidden_neurons", type=int, default=3, help="Number of hidden neurons.")
     parser.add_argument("--run_mode", choices=["train", "test"], default="train", help="Mode to run the script: train or test.")
     parser.add_argument("--gens", type=int, default=30, help="Number of generations for the genetic algorithm.")
-    parser.add_argument("--npop", type=int, default=100, help="Population size.")
+    parser.add_argument("--npop", type=int, default=20, help="Population size.")
     parser.add_argument("--mutation", type=float, default=0.2, help="Mutation rate.")
-    parser.add_argument("--enemies", type=int, nargs='+', default=[2,8], help='List of enemies to fight')
+    parser.add_argument("--enemies", type=int, nargs='+', default=[7], help='List of enemies to fight')
     
     args = parser.parse_args()
 

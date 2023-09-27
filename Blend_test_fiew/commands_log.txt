@@ -1,4 +1,9 @@
-c:/Users/tomdu/OneDrive/Documents/ENSC/4A-Vu/Evolutionary Computing/EvoMan/evoman_framework/Specialist_GID.py
 c:/Users/tomdu/OneDrive/Documents/ENSC/4A-Vu/Evolutionary Computing/EvoMan/evoman_framework/Specialist_Blend.py
 c:/Users/tomdu/OneDrive/Documents/ENSC/4A-Vu/Evolutionary Computing/EvoMan/evoman_framework/Specialist_Blend.py
 c:/Users/tomdu/OneDrive/Documents/ENSC/4A-Vu/Evolutionary Computing/EvoMan/evoman_framework/Specialist_Blend.py
+c:/Users/tomdu/OneDrive/Documents/ENSC/4A-Vu/Evolutionary Computing/EvoMan/evoman_framework/Specialist_Blend.py
+Specialist_Blend.py --headless
+Specialist_Blend.py
+Specialist_Blend.py --headless
+Specialist_Blend.py --headless --experiment_name=Blend_test_fiew
+Specialist_Blend.py --experiment_name=Blend_test_fiew

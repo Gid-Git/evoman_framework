@@ -27,11 +27,12 @@ param_change = {
     'crossover_rate': {'range': (0.2, 1), 'type': 'float'},
     'dom_l': {'range': (-1, 1), 'type': 'float'},
     'dom_u': {'range': (-1, 1), 'type': 'float'},
-    'generations': {'range': (1, 3), 'type': 'int'},
+    'generations': {'range': (1, 50), 'type': 'int'},
 }
 
-n_samples = 2
-n_iterations = 2
+
+n_samples = 50
+n_iterations = 50
 
 # Initialize lists for storing evaluated parameters and performances
 evaluated_parameters = []
@@ -51,6 +52,7 @@ for point in scaled_design:
     for param_name, param_properties in param_change.items():
         if param_properties['type'] == 'int':
             combined_parameters[param_name] = int(round(combined_parameters[param_name]))
+
     performance = run_evoman(**combined_parameters)
     initial_performance.append(performance)
 

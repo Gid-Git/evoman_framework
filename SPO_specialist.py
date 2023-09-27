@@ -27,7 +27,7 @@ param_change = {
     'crossover_rate': {'range': (0.2, 1), 'type': 'float'},
     'dom_l': {'range': (-1, 1), 'type': 'float'},
     'dom_u': {'range': (-1, 1), 'type': 'float'},
-    'generations': {'range': (1, 50), 'type': 'int'},
+    'generations': {'range': (1, 50), 'type': 'int'}
 }
 
 

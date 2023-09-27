@@ -5,12 +5,12 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from new_specialist_last import run_evoman
 import csv
 
-
+# Define fixed parameters and parameters to change
 parameters = {
-    'experiment_name': "testing_specialistx10",
+    'experiment_name': "Parameter_Tuning",
     'enemy': [6],
     'population_size': 100,
-    'generations': 30,
+    'generations': 2,
     'mutation_rate': 0.1,
     'crossover_rate': 0.9,
     'tournament_size': 5,
@@ -22,80 +22,62 @@ parameters = {
     'speed': "fastest", 
 }
 
-"""
-Dont forget to later try this with the different selection, mutation and turnament
-"""
-
-# If we have more time later add dom_l and dom_u as well as tournament size and so on look at lower function
 param_change = {
-    'mutation_rate': (0.01, 0.2),
-    'crossover_rate': (0.2, 1),
-    'dom_l': (-1, 1),
-    'dom_u': (-1, 1)
+    'mutation_rate': {'range': (0.01, 0.2), 'type': 'float'},
+    'crossover_rate': {'range': (0.2, 1), 'type': 'float'},
+    'dom_l': {'range': (-1, 1), 'type': 'float'},
+    'dom_u': {'range': (-1, 1), 'type': 'float'},
+    'generations': {'range': (1, 3), 'type': 'int'},
 }
 
-"""Add this when doing with n_hidden_neurons"""
+n_samples = 2
+n_iterations = 2
 
-# # Find the next point to sample
-# def objective(x):
-#     # Round the value of n_hidden_neurons to the nearest integer
-#     x[-1] = round(x[-1])
-#     return -model.predict([x])[0]  # We want to maximize the performance, hence minimize the negative performance
-    
-# res = minimize(objective, [0.5] * len(ranges), bounds=normalized_ranges)
-# next_point = res.x * (ranges[:, 1] - ranges[:, 0]) + ranges[:, 0]
-    
-# # Round the number of hidden neurons to the nearest integer
-# next_point[-1] = round(next_point[-1])
-
-
-n_samples = 100
-n_iterations = 100
-
+# Initialize lists for storing evaluated parameters and performances
 evaluated_parameters = []
 performances = []
 
-# Normalize ranges
-ranges = np.array(list(param_change.values()))
+# Normalize ranges and generate initial design points
+ranges = np.array([param['range'] for param in param_change.values()])
 normalized_ranges = np.array([[0, 1]] * len(ranges))
-
-# Generate initial design points using lhs
 initial_design = lhs(len(ranges), samples=n_samples)
 scaled_design = initial_design * (ranges[:, 1] - ranges[:, 0]) + ranges[:, 0]
 
-# Evaluate the initial design points using run_evoman
+# Evaluate initial design points and fit the model
 initial_performance = []
 for point in scaled_design:
     varying_parameters = dict(zip(param_change.keys(), point))
     combined_parameters = {**parameters, **varying_parameters}
+    for param_name, param_properties in param_change.items():
+        if param_properties['type'] == 'int':
+            combined_parameters[param_name] = int(round(combined_parameters[param_name]))
     performance = run_evoman(**combined_parameters)
     initial_performance.append(performance)
 
-initial_performance = np.array(initial_performance)
-
-# Fit the Gaussian Process Regression model
 model = GaussianProcessRegressor()
-model.fit(initial_design, initial_performance)
+model.fit(initial_design, np.array(initial_performance))
 
+# Optimize and update the model iteratively
 for iteration in range(n_iterations):
-    # Find the next point to sample
     def objective(x):
-        return -model.predict([x])[0]  # We want to maximize the performance, hence minimize the negative performance
+        return -model.predict([x])[0]
     
     res = minimize(objective, [0.5] * len(ranges), bounds=normalized_ranges)
     next_point = res.x * (ranges[:, 1] - ranges[:, 0]) + ranges[:, 0]
 
     varying_parameters = dict(zip(param_change.keys(), next_point))
-    combined_parameters = {**parameters, **varying_parameters}
+    for param_name, param_properties in param_change.items():
+        if param_properties['type'] == 'int':
+            varying_parameters[param_name] = int(round(varying_parameters[param_name]))
 
+    combined_parameters = {**parameters, **varying_parameters}
     next_performance = run_evoman(**combined_parameters)
 
-    evaluated_parameters.append(dict(zip(param_change.keys(), next_point)))
+    evaluated_parameters.append(varying_parameters)
     performances.append(next_performance)
-    
-    # Update the model with the new point
     model.fit(np.vstack([model.X_train_, res.x]), np.hstack([model.y_train_, next_performance]))
 
+# Find the best parameters and save results
 best_index = np.argmax(performances)
 best_parameters = evaluated_parameters[best_index]
 
@@ -105,10 +87,9 @@ with open('evaluated_parameters.csv', mode='w', newline='') as file:
     for params, performance in zip(evaluated_parameters, performances):
         writer.writerow(list(params.values()) + [performance])
 
-    with open('best_parameters.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(best_parameters.keys())
-        writer.writerow(best_parameters.values())
-
+with open('best_parameters.csv', mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(best_parameters.keys())
+    writer.writerow(best_parameters.values())
 
 print(f"Best Parameters: {best_parameters}")

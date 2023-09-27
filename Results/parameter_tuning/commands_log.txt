@@ -1,1 +1,5 @@
 new_specialist_last.py --headless --experiment_name parameter_tuning --crossover_rate 0.2 --mutation_rate 0.2 --gens 30 --enemy 6
+SPO_specialist.py
+SPO_specialist.py
+SPO_specialist.py
+SPO_specialist.py

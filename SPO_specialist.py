@@ -27,12 +27,13 @@ param_change = {
     'crossover_rate': {'range': (0.2, 1), 'type': 'float'},
     'dom_l': {'range': (-1, 1), 'type': 'float'},
     'dom_u': {'range': (-1, 1), 'type': 'float'},
-    'generations': {'range': (1, 50), 'type': 'int'}
+    'generations': {'range': (1, 2), 'type': 'int'},
+    'population_size': {'range': (2, 200), 'type': 'int'}
 }
 
 
-n_samples = 50
-n_iterations = 50
+n_samples = 2
+n_iterations = 2
 
 # Initialize lists for storing evaluated parameters and performances
 evaluated_parameters = []

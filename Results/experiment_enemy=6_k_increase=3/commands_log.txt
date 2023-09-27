@@ -2,3 +2,5 @@ optimization_mick_2.py --headless
 optimization_mick_2.py --headless
 optimization_mick_2.py --headless
 optimization_mick_2.py --headless
+BitFlip_3point_Elitism.py --headless
+BitFlip_Uniform_Elitism.py --headless

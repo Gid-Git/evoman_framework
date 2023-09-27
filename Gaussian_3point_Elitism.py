@@ -14,7 +14,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 
 class EvoMan:
     def __init__(self, experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
-                 mode, n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
+                 mode, n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
         self.experiment_name = experiment_name
         self.enemy = enemy
         self.n_pop = population_size
@@ -26,6 +26,7 @@ class EvoMan:
         self.headless = headless
         self.dom_l = dom_l
         self.dom_u = dom_u
+        self.number_of_crossovers = number_of_crossovers
         self.n_elitism = n_elitism
         self.k_tournament = k_tournament
         self.sel_pres_incr = sel_pres_incr
@@ -96,33 +97,27 @@ class EvoMan:
         return fitness, health_gain, time_game
 
     def mutate(self, individual):
-        # Applies mutation to the individual based on the mutation rate
-        for i in range(len(individual)):
-            if random.uniform(0, 1) < self.mutation_rate:
-                mutation = np.random.normal(individual[i], 0.1)
-                individual[i] = np.clip(mutation, self.dom_l, self.dom_u)
-        return individual
+            # Applies mutation to the individual based on the mutation rate
+            for i in range(len(individual)):
+                if random.uniform(0, 1) < self.mutation_rate:
+                    mutation = np.random.normal(individual[i], 0.1)
+                    individual[i] = np.clip(mutation, self.dom_l, self.dom_u)
+            return individual
     
-    # def mutate(self, individual):
-    #     # Applies bit mutation to the individual based on the mutation rate
-    #     for i in range(len(individual)):
-    #         if random.uniform(0, 1) < self.mutation_rate:
-    #             # Convert the weight to binary representation
-    #             binary_representation = list(format(int((individual[i] - self.dom_l) * (2**15) / (self.dom_u - self.dom_l)), '016b'))
-                
-    #             for j in range(len(binary_representation)):
-    #                 if random.uniform(0, 1) < self.mutation_rate:
-    #                     binary_representation[j] = '1' if binary_representation[j] == '0' else '0'
-                
-    #             individual[i] = int("".join(binary_representation), 2) * (self.dom_u - self.dom_l) / (2**15) + self.dom_l
-    #     return individual
-    
-    def crossover(self, parent1, parent2):
-        # Applies crossover based on the crossover rate and returns the offspring
-        if random.uniform(0, 1) < self.crossover_rate:
-            crossover_point = random.randint(1, len(parent1) - 1)
-            child1 = np.concatenate((parent1[:crossover_point], parent2[crossover_point:]))
-            child2 = np.concatenate((parent2[:crossover_point], parent1[crossover_point:]))
+    def crossover(self, parent1, parent2, number_of_crossovers):
+        # Applies N point crossover 
+        if random.uniform(0,1) < self.crossover_rate:
+            crossover_points = sorted(random.sample(range(1, len(parent1)), number_of_crossovers))
+            child1 = parent1.copy()
+            child2 = parent2.copy()
+            for i in range(number_of_crossovers - 1):
+                # Switch between parents for each section
+                if i%2 == 0:
+                    child1[crossover_points[i]:crossover_points[i+1]] = parent1[crossover_points[i]:crossover_points[i+1]]
+                    child1[crossover_points[i]:crossover_points[i+1]] = parent2[crossover_points[i]:crossover_points[i+1]]
+                else:
+                    child1[crossover_points[i]:crossover_points[i+1]] = parent2[crossover_points[i]:crossover_points[i+1]]
+                    child1[crossover_points[i]:crossover_points[i+1]] = parent1[crossover_points[i]:crossover_points[i+1]]
             return child1, child2
         else:
             return parent1.copy(), parent2.copy()
@@ -217,7 +212,7 @@ class EvoMan:
                     parent1, winner_index = self.tournament_selection(population.shape[0], fitness, population)
                     parent2, winner_index = self.tournament_selection(population.shape[0], fitness, population)
 
-                    child1, child2 = self.crossover(parent1, parent2)
+                    child1, child2 = self.crossover(parent1, parent2, self.number_of_crossovers)
 
                     child1 = self.mutate(child1)
                     child2 = self.mutate(child2)
@@ -279,9 +274,9 @@ class EvoMan:
 
 
 def run_evoman(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, mode, 
-               n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
+               n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
         evoman = EvoMan(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
-                        mode, n_hidden_neurons, headless, dom_l, dom_u, speed, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor)
+                        mode, n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor)
         
         # Log the command
         if mode == "train":
@@ -309,6 +304,7 @@ if __name__ == "__main__":
         parser.add_argument("--dom_l", type=float, default=-1, help="Lower bound for initialization and mutation")
         parser.add_argument("--dom_u", type=float, default=1, help="Upper bound for initialization and mutation")
         parser.add_argument("--speed", type=str, default="fastest", help="Speed: fastest or normal")
+        parser.add_argument("--number_of_crossovers", type=int, default=3, help="Number of crossovers")
         parser.add_argument("--n_elitism", type=int, default=2, help="Number of best individuals from population that are always selected for the next generation.")
         parser.add_argument("--k_tournament", type=int, default= 4, help="The amount of individuals to do a tournament with for selection, the more the higher the selection pressure")
         parser.add_argument("--selection_pressure_increase", type=bool, default=True, help="if set to true the selection pressure will linearly increase over time from k_tournament till 2*k_tournament")
@@ -317,5 +313,5 @@ if __name__ == "__main__":
         args = parser.parse_args()
 
         run_evoman(args.experiment_name, args.enemy, args.npop, args.gens, args.mutation_rate, args.crossover_rate,
-               args.mode, args.n_hidden_neurons, args.headless, args.dom_l, args.dom_u, args.speed, 
+               args.mode, args.n_hidden_neurons, args.headless, args.dom_l, args.dom_u, args.speed, args.number_of_crossovers,
                args.n_elitism, args.k_tournament, args.selection_pressure_increase, args.k_tournament_final_linear_increase_factor)

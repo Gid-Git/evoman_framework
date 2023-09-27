@@ -12,7 +12,7 @@ import os
 import csv
 
 parameters = {
-    'experiment_name': "testing_bitfplit_3point_elitism",
+    'experiment_name': "",
     'enemy': [6],
     'population_size': 100,
     'generations': 50,
@@ -45,6 +45,7 @@ EAS = {
 number_of_runs = 10
 
 for EA in EAS.items():
+    parameters['experiment_name'] = EA[0]
     runs_best_fitness = np.zeros(number_of_runs)
     for i in range(number_of_runs):
         number = i + 1

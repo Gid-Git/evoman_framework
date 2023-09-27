@@ -45,12 +45,9 @@ EAS = {
 number_of_runs = 10
 
 for EA in EAS.items():
-    parameters['experiment_name'] = EA[0]
     runs_best_fitness = np.zeros(number_of_runs)
     for i in range(number_of_runs):
-        number = i + 1
-        unique_experiment_name = f"experiment_{number}"
-        parameters["experiment_name"] = unique_experiment_name
+        parameters['experiment_name'] = EA[0] + f'run_{i}'
         runs_best_fitness[i] = EA[1](**parameters)    
 
     print()
@@ -58,3 +55,5 @@ for EA in EAS.items():
     print(f"Average best achieved fitness over {number_of_runs} runs:", np.average(runs_best_fitness))
     print(f"Average best achieved fitness over {number_of_runs} runs:", np.std(runs_best_fitness))
     print()
+
+   

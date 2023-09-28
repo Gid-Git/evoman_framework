@@ -69,6 +69,13 @@ class EvoMan:
                           visuals=not self.headless)
         return env
     
+    def normalize(self, individual):
+        min_val = np.min(individual)
+        max_val = np.max(individual)
+        if max_val - min_val == 0:
+            return individual
+        return -1 + 2 * (individual - min_val) / (max_val - min_val)
+    
     def initialize_individual(self):
         # Initialize an individual with random weights and biases within the range [dom_l, dom_u]
         individual = np.random.uniform(self.dom_l, self.dom_u, self.total_network_weights)
@@ -96,7 +103,7 @@ class EvoMan:
             if random.uniform(0, 1) < self.mutation_rate:
                 mutation = np.random.normal(individual[i], 0.1)
                 individual[i] = np.clip(mutation, self.dom_l, self.dom_u)
-        return individual
+        return self.normalize(individual)
     
     def crossover(self, parent1, parent2):
         # Applies crossover based on the crossover rate and returns the offspring
@@ -104,13 +111,23 @@ class EvoMan:
             crossover_point = random.randint(1, len(parent1) - 1)
             child1 = np.concatenate((parent1[:crossover_point], parent2[crossover_point:]))
             child2 = np.concatenate((parent2[:crossover_point], parent1[crossover_point:]))
+
+            # Normalize the children's weights
+            child1 = self.normalize(child1)
+            child2 = self.normalize(child2)
+
             return child1, child2
         else:
             return parent1.copy(), parent2.copy()
         
     def tournament_selection(self, population, fitness):
         # Selects an individual using tournament selection and returns the selected individual
+        # print(len(population))
+
         selected_indices = np.random.choice(self.n_pop, self.tournament_size)
+
+        # print(selected_indices)
+
         tournament_individuals = population[selected_indices]
         tournament_fitness = fitness[selected_indices]
         winner_index = np.argmax(tournament_fitness)

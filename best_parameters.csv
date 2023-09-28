@@ -1,2 +1,2 @@
-mutation_rate,crossover_rate,dom_l,dom_u,generations
-0.01,0.2,1.0,-1.0,3
+mutation_rate,crossover_rate,generations,n_hidden_neurons,tournament_size
+0.11341311479581076,0.2,10,4,6

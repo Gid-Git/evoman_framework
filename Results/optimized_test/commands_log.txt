@@ -1,0 +1,2 @@
+new_specialist_last.py --headless --experiment_name optimized_test --n_hidden_neurons 4 --mode=train --gens=10 --npop=100 --mutation=0.2 --enemy 6 --mutation_rate 0.1134
+new_specialist_last.py --experiment_name optimized_test --speed normal --enemy 6

@@ -75,6 +75,13 @@ class EvoMan:
                           visuals=not self.headless)
         return env
     
+    def normalize(self, individual):
+        min_val = np.min(individual)
+        max_val = np.max(individual)
+        if max_val - min_val == 0:
+            return individual
+        return -1 + 2 * (individual - min_val) / (max_val - min_val)
+    
     def initialize_individual(self):
         # Initialize an individual with random weights and biases within the range [dom_l, dom_u]
         individual = np.random.uniform(self.dom_l, self.dom_u, self.total_network_weights)
@@ -102,7 +109,7 @@ class EvoMan:
                 if random.uniform(0, 1) < self.mutation_rate:
                     mutation = np.random.normal(individual[i], 0.1)
                     individual[i] = np.clip(mutation, self.dom_l, self.dom_u)
-            return individual
+            return self.normalize(individual)
     
     def crossover(self, parent1, parent2, number_of_crossovers):
         # Applies N point crossover 

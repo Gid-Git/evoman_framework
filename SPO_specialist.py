@@ -25,14 +25,18 @@ parameters = {
 param_change = {
     'mutation_rate': {'range': (0.01, 0.2), 'type': 'float'},
     'crossover_rate': {'range': (0.2, 1), 'type': 'float'},
-    'dom_l': {'range': (-1, 1), 'type': 'float'},
-    'dom_u': {'range': (-1, 1), 'type': 'float'},
-    'generations': {'range': (1, 50), 'type': 'int'}
+    # 'dom_l': {'range': (-1, 1), 'type': 'float'},
+    # 'dom_u': {'range': (-1, 1), 'type': 'float'},
+    'generations': {'range': (1, 20), 'type': 'int'},
+    # 'population_size': {'range': (20, 500), 'type': 'int'}
+    'n_hidden_neurons': {'range': (2, 20), 'type': 'int'},
+    'tournament_size': {'range': (2, 20), 'type': 'int'}
+
 }
 
 
-n_samples = 50
-n_iterations = 50
+n_samples = 5
+n_iterations = 5
 
 # Initialize lists for storing evaluated parameters and performances
 evaluated_parameters = []

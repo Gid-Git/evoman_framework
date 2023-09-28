@@ -95,6 +95,13 @@ class EvoMan:
         for i, individual in enumerate(population):
             fitness[i], health_gain[i], time_game[i] = self.simulation(individual)
         return fitness, health_gain, time_game
+    
+    def normalize(self, individual):
+        min_val = np.min(individual)
+        max_val = np.max(individual)
+        if max_val - min_val == 0:
+            return individual
+        return -1 + 2 * (individual - min_val) / (max_val - min_val)
 
     def mutate(self, individual):
             # Applies mutation to the individual based on the mutation rate
@@ -102,7 +109,7 @@ class EvoMan:
                 if random.uniform(0, 1) < self.mutation_rate:
                     mutation = np.random.normal(individual[i], 0.1)
                     individual[i] = np.clip(mutation, self.dom_l, self.dom_u)
-            return individual
+            return self.normalize(individual)
     
     def crossover(self, parent1, parent2):
             # Applies the uniform crossover operator

@@ -95,6 +95,13 @@ class EvoMan:
         for i, individual in enumerate(population):
             fitness[i], health_gain[i], time_game[i] = self.simulation(individual)
         return fitness, health_gain, time_game
+    
+    def normalize(self, individual):
+        min_val = np.min(individual)
+        max_val = np.max(individual)
+        if max_val - min_val == 0:
+            return individual
+        return -1 + 2 * (individual - min_val) / (max_val - min_val)
 
     def mutate(self, individual):
         # Applies bit mutation to the individual based on the mutation rate
@@ -108,7 +115,7 @@ class EvoMan:
                         binary_representation[j] = '1' if binary_representation[j] == '0' else '0'
                 
                 individual[i] = int("".join(binary_representation), 2) * (self.dom_u - self.dom_l) / (2**15) + self.dom_l
-        return individual
+        return self.normalize(individual)
     
     def crossover(self, parent1, parent2, number_of_crossovers):
         # Applies N point crossover 

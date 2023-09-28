@@ -4,3 +4,8 @@ optimization_mick_2.py --headless
 optimization_mick_2.py --headless
 BitFlip_3point_Elitism.py --headless
 BitFlip_Uniform_Elitism.py --headless
+BitFlip_3point_Tournament.py --headless
+BitFlip_3point_Elitism.py --headless
+BitFlip_3point_Elitism.py --headless --alpha=0.6
+BitFlip_3point_Elitism.py --headless --alpha=0.6
+BitFlip_3point_Elitism.py --headless --alpha=0.6

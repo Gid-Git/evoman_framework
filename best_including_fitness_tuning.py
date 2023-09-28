@@ -14,7 +14,8 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 
 class EvoMan:
     def __init__(self, experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
-                 mode, n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
+                 mode, n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor,
+                 alpha):
         self.experiment_name = experiment_name
         self.enemy = enemy
         self.n_pop = population_size
@@ -31,6 +32,7 @@ class EvoMan:
         self.k_tournament = k_tournament
         self.sel_pres_incr = sel_pres_incr
         self.k_tournament_final_linear_increase_factor = k_tournament_final_linear_increase_factor
+        self.alpha = alpha
         self.current_generation = 0
         self.speed = speed
         self.counter = 0
@@ -85,16 +87,18 @@ class EvoMan:
         fitness, player_life, enemy_life, time = self.env.play(pcont=x)
         health_gain = player_life - enemy_life
 
-        return fitness, health_gain, time
+        return fitness, health_gain, time, player_life, enemy_life
     
     def evaluate(self, population):
         # Evaluates the entire population and returns the fitness values
         fitness = np.zeros(self.n_pop)
         health_gain = np.zeros(self.n_pop)
         time_game = np.zeros(self.n_pop)
+        player_life = np.zeros(self.n_pop)
+        enemy_life = np.zeros(self.n_pop)
         for i, individual in enumerate(population):
-            fitness[i], health_gain[i], time_game[i] = self.simulation(individual)
-        return fitness, health_gain, time_game
+            fitness[i], health_gain[i], time_game[i], player_life[i], enemy_life[i] = self.simulation(individual)
+        return fitness, health_gain, time_game, player_life, enemy_life
 
     def mutate(self, individual):
         # Applies bit mutation to the individual based on the mutation rate
@@ -191,7 +195,8 @@ class EvoMan:
         population = np.array([self.initialize_individual() for _ in range(self.n_pop)])
 
         # Evaluate the initial population
-        fitness, health_gain, time_game = self.evaluate(population)
+        fitness, health_gain, time_game, player_life, enemy_life = self.evaluate(population)
+        fitness = self.alpha*(100 - enemy_life) + (1-self.alpha)*player_life - np.log(time_game)
 
         # Initialize best individual and its fitness
         best_individual_index = np.argmax(fitness)
@@ -224,7 +229,12 @@ class EvoMan:
                     child2 = self.mutate(child2)
 
                     children.extend([child1, child2])    
-                fitness_children, health_gain_children, time_game_children = self.evaluate(children)
+                fitness_children, health_gain_children, time_game_children, player_life_children, enemy_life_children  = self.evaluate(children)
+                print('fitness before', fitness_children)
+                fitness_children = self.alpha*(100 - enemy_life_children) + (1-self.alpha)*player_life_children - np.log(time_game_children)
+                print('fitness after', fitness_children)
+            
+
                 pop_before_selection = np.concatenate((population, children))
                 fitness_before_selection = np.concatenate((fitness, fitness_children))
                 #Perform selection on the combined population of parents and children
@@ -239,7 +249,6 @@ class EvoMan:
 
                 # Check if any individual has a higher fitness, save that one
                 max_fitness_index = np.argmax(fitness)
-                print(max_fitness_index)
                 if fitness[max_fitness_index] > best_fitness:
                     best_fitness = fitness[max_fitness_index]
                     best_individual = population[max_fitness_index]
@@ -280,9 +289,9 @@ class EvoMan:
 
 
 def run_evoman(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, mode, 
-               n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor):
+               n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor, alpha):
         evoman = EvoMan(experiment_name, enemy, population_size, generations, mutation_rate, crossover_rate, 
-                        mode, n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor)
+                        mode, n_hidden_neurons, headless, dom_l, dom_u, speed, number_of_crossovers, n_elitism, k_tournament, sel_pres_incr, k_tournament_final_linear_increase_factor, alpha)
         
         # Log the command
         if mode == "train":
@@ -315,9 +324,11 @@ if __name__ == "__main__":
         parser.add_argument("--k_tournament", type=int, default= 4, help="The amount of individuals to do a tournament with for selection, the more the higher the selection pressure")
         parser.add_argument("--selection_pressure_increase", type=bool, default=True, help="if set to true the selection pressure will linearly increase over time from k_tournament till 2*k_tournament")
         parser.add_argument("--k_tournament_final_linear_increase_factor", type=int, default= 4, help="The factor with which k_tournament should linearly increase (if selection_pressure_increase = True), if the value is 4 the last quarter of generations have tournaments of size k_tournament*4")
+        parser.add_argument("--alpha", type=float, default=0.5, help="Weight for enemy damage")
 
         args = parser.parse_args()
 
         run_evoman(args.experiment_name, args.enemy, args.npop, args.gens, args.mutation_rate, args.crossover_rate,
                args.mode, args.n_hidden_neurons, args.headless, args.dom_l, args.dom_u, args.speed, args.number_of_crossovers,
-               args.n_elitism, args.k_tournament, args.selection_pressure_increase, args.k_tournament_final_linear_increase_factor)
+               args.n_elitism, args.k_tournament, args.selection_pressure_increase, args.k_tournament_final_linear_increase_factor,
+               args.alpha)

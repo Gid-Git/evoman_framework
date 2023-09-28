@@ -1,11 +1,11 @@
-from bitflip_3point_elitism import run_evoman as run_evoman_bitflip_3point_elitism
-from bitflip_3point_tournament import run_evoman as run_evoman_bitfplit_3point_tournament
-from bitflip_uniform_elitism import run_evoman as run_evoman_bitflip_uniform_elitism
-from bitflip_uniform_tournament import run_evoman as run_evoman_bitflip_uniform_tournament
-from gaussian_3point_elitism import run_evoman as run_evoman_gaussian_3point_elitism
-from gaussian_3point_tournament import run_evoman as run_evoman_gaussian_3point_tournament
-from gaussian_uniform_elitism import run_evoman as run_evoman_gaussian_uniform_elitism
-from gaussian_uniform_tournament import run_evoman as run_evoman_gaussian_uniform_tournament
+from BitFlip_3point_Elitism import run_evoman as run_evoman_bitflip_3point_elitism
+from BitFlip_3point_Tournament import run_evoman as run_evoman_bitfplit_3point_tournament
+from BitFlip_Uniform_Elitism import run_evoman as run_evoman_bitflip_uniform_elitism
+from BitFlip_Uniform_Tournament import run_evoman as run_evoman_bitflip_uniform_tournament
+from Gaussian_3point_Elitism import run_evoman as run_evoman_gaussian_3point_elitism
+from Gaussian_3point_Tournament import run_evoman as run_evoman_gaussian_3point_tournament
+from Gaussian_Uniform_Elitism import run_evoman as run_evoman_gaussian_uniform_elitism
+from Gaussian_Uniform_Tournament import run_evoman as run_evoman_gaussian_uniform_tournament
 import time
 import numpy as np
 import os 
@@ -15,9 +15,9 @@ parameters = {
     'experiment_name': "",
     'enemy': [6],
     'population_size': 100,
-    'generations': 50,
+    'generations': 30,
     'mutation_rate': 0.1,
-    'crossover_rate': 0.9,
+    'crossover_rate': 0.5,
     'mode': "train",
     'n_hidden_neurons': 10,
     'headless': True,

@@ -239,7 +239,6 @@ class EvoMan:
 
                 # Check if any individual has a higher fitness, save that one
                 max_fitness_index = np.argmax(fitness)
-                print(max_fitness_index)
                 if fitness[max_fitness_index] > best_fitness:
                     best_fitness = fitness[max_fitness_index]
                     best_individual = population[max_fitness_index]

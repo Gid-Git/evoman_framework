@@ -15,7 +15,7 @@ parameters = {
     'experiment_name': "",
     'enemy': [6],
     'population_size': 100,
-    'generations': 50,
+    'generations': 30,
     'mutation_rate': 0.1,
     'crossover_rate': 0.9,
     'mode': "train",
@@ -25,7 +25,7 @@ parameters = {
     'dom_u': 1,
     'speed': "fastest", 
     'number_of_crossovers': 3,
-    'n_elitism': np.inf,
+    'n_elitism': 0,
     'k_tournament': 4,
     'sel_pres_incr': True,
     'k_tournament_final_linear_increase_factor': 4,   
@@ -49,6 +49,8 @@ for EA in EAS.items():
     #Check if elitism, if so set elitism to two
     if EA[0][-1] == 'm':
         parameters['n_elitism'] = 2
+    else:
+        parameters['n_elitism'] = 0
     for i in range(number_of_runs):
         parameters['experiment_name'] = EA[0] + f'run_{i}'
         runs_best_fitness[i] = EA[1](**parameters)    

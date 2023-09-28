@@ -30,7 +30,7 @@ parameters = {
     'experiment_name': "",
     'enemy': [6],
     'population_size': 100,
-    'generations': 2,
+    'generations': 30,
     'mutation_rate': 0.1,
     'crossover_rate': 0.5,
     'mode': "train",
@@ -49,17 +49,17 @@ parameters = {
 param_change = {
     'mutation_rate': {'range': (0.01, 0.2), 'type': 'float'},
     'crossover_rate': {'range': (0.2, 1), 'type': 'float'},
-    'n_hidden_neurons': {'range': (2, 20), 'type': 'int'},
-    'number_of_crossovers': {'range': (2, 20), 'type': 'int'},
-    'n_elitism': {'range': (2, 20), 'type': 'int'},
+    'n_hidden_neurons': {'range': (4, 20), 'type': 'int'},
+    'number_of_crossovers': {'range': (2, 10), 'type': 'int'},
+    'n_elitism': {'range': (1, 20), 'type': 'int'},
     'k_tournament': {'range': (2, 20), 'type': 'int'},
     'k_tournament_final_linear_increase_factor': {'range': (2, 5), 'type': 'int'}
 }
 
 
-n_samples = 2
-n_iterations = 2
-n_runs = 2
+n_samples = 10
+n_iterations = 10
+n_runs = 10
 
 # Initialize lists for storing evaluated parameters and performances
 evaluated_parameters = []

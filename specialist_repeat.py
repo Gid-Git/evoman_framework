@@ -58,7 +58,7 @@ for EA in EAS.items():
     print()
     print(f"EA used:", EA[0])
     print(f"Average best achieved fitness over {number_of_runs} runs:", np.average(runs_best_fitness))
-    print(f"Average best achieved fitness over {number_of_runs} runs:", np.std(runs_best_fitness))
+    print(f"Standard deviation over results {number_of_runs} runs:", np.std(runs_best_fitness))
     print()
 
    

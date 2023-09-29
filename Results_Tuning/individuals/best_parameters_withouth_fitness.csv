@@ -1,0 +1,2 @@
+mutation_rate,crossover_rate,n_hidden_neurons,number_of_crossovers,n_elitism,k_tournament,k_tournament_final_linear_increase_factor
+0.07986069693792121,0.9317683828391756,7.433981157586631,8.140620325298263,15.571184459908059,17.08231140364137,2.9292823998498454
